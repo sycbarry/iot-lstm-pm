@@ -1,1 +1,67 @@
-*.sh
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+*.pid
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtualenv
+env/
+venv/
+.venv/
+
+# Node
+node_modules/
+
+# Docker
+*.pid
+*.seed
+*.bak
+*.swp
+docker-compose.override.yml
+.env
+.env.*
+
+# Ignore Docker volumes if stored in project dir
+volumes/
+data/
+tmp/
+
+# Ignore build artifacts
+build/
+dist/
+*.egg-info/
+
+# Shell script artifacts
+*.swp
+*.swo
+
+# Ignore editor/project settings
+.vscode/
+.idea/
+*.iml
+
+# Ignore coverage/test reports
+coverage/
+*.cover
+*.pyc
+htmlcov/
+.junit/
+
+# Ignore user-generated config
+*.local
+*.secret
+*.bak
+
+# Optional: ignore all shell history or sensitive execution data
+.bash_history
+.zsh_history
+.history
+
