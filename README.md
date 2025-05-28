@@ -12,3 +12,4 @@ Make sure you have docker installed with docker compose.
 2. Run: `docker compose up --build` from the root directory.
 
 
+> This was not generated with AI. Cheers.
