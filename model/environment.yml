@@ -1,0 +1,19 @@
+name: iot-lstm-pm
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - flask
+  - tensorflow=2.12
+  - matplotlib
+  - numpy
+  - scipy
+  - pandas
+  - scikit-learn
+  - jupyterlab
+  - ipykernel
+  - h5py
+  - pip
+  - pip:
+      - tensorflow-estimator

@@ -5,21 +5,21 @@ import numpy as np
 
 DEBUG = False
 
-class Sensor():
 
+class Sensor:
     def __init__(self, *args, noise_level=1):
         self.id = uuid.uuid4()
         self.period = 1000
         self.amplitude = 5
         self.noise_level = noise_level
         self.time = np.arange(4 * 1000 + 1)
-    
-    def get_id(self): 
+
+    def get_id(self):
         return self.id
-        
+
     def seasonal_pattern(self, season_time):
-        base = np.sin(2 * np.pi * season_time) * 0.5 
-        spikes = np.exp(-40 * (season_time - 0.1)**2)
+        base = np.sin(2 * np.pi * season_time) * 0.5
+        spikes = np.exp(-40 * (season_time - 0.1) ** 2)
         burst = 0.2 * np.sin(8 * np.pi * season_time)
         return base + spikes + burst
 
@@ -27,23 +27,26 @@ class Sensor():
         season_time = ((time + phase) % period) / period
         return amplitude * self.seasonal_pattern(season_time)
 
-
-    def noise(self, time, noise_level=1, seed=None): 
+    def noise(self, time, noise_level=1, seed=None):
         rnd = np.random.RandomState(seed)
         noise = rnd.randn(len(time)) * (noise_level / 2)
         return noise
 
-    def generate_signal(self, anomaly=False): 
-        if not anomaly: 
-            series = self.seasonality(self.time, period=self.period, amplitude=self.amplitude)
+    def generate_signal(self, anomaly=False):
+        if not anomaly:
+            series = self.seasonality(
+                self.time, period=self.period, amplitude=self.amplitude
+            )
             # noise_signal = self.noise(self.time, noise_level=1, seed=42)
             return series
         elif anomaly == True:
             anomaly_level = randint(1, 3)
             print(f"anomaly set / value => {anomaly_level}")
-            series = self.seasonality(self.time, 
-                                      period=self.period + (anomaly_level // 2), 
-                                      amplitude=self.amplitude)
+            series = self.seasonality(
+                self.time,
+                period=self.period + (anomaly_level // 2),
+                amplitude=self.amplitude,
+            )
             noise_signal = self.noise(self.time, noise_level=anomaly_level, seed=42)
             return series + noise_signal
 
@@ -52,43 +55,48 @@ def main():
     sensor = Sensor(noise_level=2)
     counter = 0
     readings = []
-    while True: 
-
+    while True:
         """Generate sensor readings"""
 
         create_anomaly = randint(0, 1)
-        if DEBUG == True: 
+        if DEBUG == True:
             create_anomaly = 0
-        #generate a normal value
-        if create_anomaly == 0: 
-            sensor_reading = sensor.generate_signal(anomaly=False) # if we have some sort of anomaly, set this to True
+        # generate a normal value
+        if create_anomaly == 0:
+            sensor_reading = sensor.generate_signal(
+                anomaly=False
+            )  # if we have some sort of anomaly, set this to True
         # otherwise create a sensor reading with a form of anomaly
-        else: 
-            sensor_reading = sensor.generate_signal(anomaly=True) # if we have some sort of anomaly, set this to True
+        else:
+            sensor_reading = sensor.generate_signal(
+                anomaly=True
+            )  # if we have some sort of anomaly, set this to True
         print(f"emitting sensor value => {sensor_reading}")
-
 
         """POST /  out a new sensor reading"""
 
-
-
         """Dump the readings to a file if debug mode is on"""
-        if DEBUG == True: 
-            readings.append({ 
-                "reading_type": "normal" if create_anomaly == 0 else "anomaly", 
-                "reading": [float(x) for x in sensor_reading]
-                })
-            if counter == 1: 
-                with open('readings.csv', 'w', newline='') as csvfile:
+        if DEBUG == True:
+            readings.append(
+                {
+                    "reading_type": "normal" if create_anomaly == 0 else "anomaly",
+                    "reading": [float(x) for x in sensor_reading],
+                }
+            )
+            if counter == 1:
+                with open("readings.csv", "w", newline="") as csvfile:
                     import csv
+
                     fieldnames = ["reading_type", "reading"]
                     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                     writer.writeheader()
                     writer.writerows(readings)
                 break
             counter += 1
-        
+
         sleep(5)
+
 
 if __name__ == "__main__":
     main()
+

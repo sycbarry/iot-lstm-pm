@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  simulator:
+    build:
+      context: ./simulator
+      dockerfile: Dockerfile
+    container_name: simulator
+    depends_on:
+      - model
+    networks:
+      - maintenance-net
+
+  model:
+    build:
+      context: ./model
+      dockerfile: Dockerfile
+    container_name: model
+    networks:
+      - maintenance-net
+
+networks:
+  maintenance-net:
+    driver: bridge
+
