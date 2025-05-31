@@ -8,6 +8,8 @@ services:
     container_name: simulator
     depends_on:
       - model
+    environment:
+        ENDPOINT: "http://model:5001/predict"
     networks:
       - maintenance-net
 
@@ -16,6 +18,8 @@ services:
       context: ./model
       dockerfile: Dockerfile
     container_name: model
+    ports: 
+      - "5001:5001"
     networks:
       - maintenance-net
 

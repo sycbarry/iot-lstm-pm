@@ -14,5 +14,7 @@ SHELL ["conda", "run", "-n", "iot-lstm-pm", "/bin/bash", "-c"]
 # Copy the rest of the application code
 COPY . .
 
+ENV PYTHONUNBUFFERED=1
+
 # Run notebook.py, then start Flask server
 CMD ["conda", "run", "-n", "iot-lstm-pm", "bash", "-c", "python notebook.py && python server.py"]
