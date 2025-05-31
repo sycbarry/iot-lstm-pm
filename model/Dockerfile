@@ -2,19 +2,33 @@ FROM continuumio/miniconda3
 
 WORKDIR /app
 
-# Copy the environment.yml file
-COPY environment.yml .
+# Be explicit about what’s happening
+COPY environment.yml ./environment.yml
 
-# Create the Conda environment
-RUN conda env create -f environment.yml
+# Print Conda version + verbose install
+RUN conda --version && \
+    echo "Creating Conda environment..." && \
+    conda env create -f environment.yml && \
+    echo "Conda environment created."
 
-# Set shell to use the environment by default
+# Use bash shell for CMDs in the environment
 SHELL ["conda", "run", "-n", "iot-lstm-pm", "/bin/bash", "-c"]
 
-# Copy the rest of the application code
+# Copy everything else into the container
 COPY . .
 
+RUN apt-get update && apt-get install -y curl
+
+# Disable stdout buffering for real-time logs
 ENV PYTHONUNBUFFERED=1
 
-# Run notebook.py, then start Flask server
-CMD ["conda", "run", "-n", "iot-lstm-pm", "bash", "-c", "python notebook.py && python server.py"]
+# Optionally confirm env is activated
+RUN echo "Python path: $(which python)" && \
+    python --version && \
+    pip list
+
+# Run preprocessing + server with clear logs
+CMD echo "Starting preprocessing..." && \
+    python -u notebook.py && \
+    echo "Starting Flask server..." && \
+    python -u server.py

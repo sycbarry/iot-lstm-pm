@@ -5,12 +5,13 @@ import uuid
 import numpy as np
 import requests
 import os
+import time
 
 
 DEBUG = False
 
 endpoint = os.getenv("ENDPOINT", "https://webhook.site/b425fbac-0ca2-4ebf-a205-209f40193be9")
-
+health_endpoint = os.getenv("HEALTHENDPOINT", "http://localhost:5001/health")
 
 class Sensor:
     def __init__(self, *args, noise_level=1):
@@ -62,24 +63,21 @@ def post_request(data: np.ndarray) -> None:
         print("no endpoint has been specified")
         return None
     payload = {"reading": list(data)}
+    print(f"sending payload to prediction api: {endpoint}")
     response = requests.post(endpoint, data=json.dumps(payload))
     return response.status_code
 
 
-def wait_for_model(url, retries=10, delay=3):
-    import time
+def wait_for_model(url, retries=30, delay=10):
     for i in range(retries):
         try:
             res = requests.get(url)
             if res.status_code == 200:
-                print("Model is ready.")
                 return
         except Exception as e:
             print(f"Waiting for model to be ready... ({i+1}/{retries})")
         time.sleep(delay)
     raise RuntimeError("Model did not become ready in time.")
-
-
 
 
 def main():
@@ -104,7 +102,7 @@ def main():
             )  # if we have some sort of anomaly, set this to True
         print(f"emitting sensor value => {sensor_reading}")
 
-        wait_for_model("http://model:5001/health")
+        wait_for_model(health_endpoint)
         post_request(sensor_reading)
 
         """Dump the readings to a file if debug mode is on"""

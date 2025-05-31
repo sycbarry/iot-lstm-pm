@@ -7,9 +7,11 @@ services:
       dockerfile: Dockerfile
     container_name: simulator
     depends_on:
-      - model
+      model:
+        condition: service_healthy  
     environment:
-        ENDPOINT: "http://model:5001/predict"
+      ENDPOINT: "http://model:5001/predict"
+      HEALTHENDPOINT: "http://model:5001/health"
     networks:
       - maintenance-net
 
@@ -18,8 +20,14 @@ services:
       context: ./model
       dockerfile: Dockerfile
     container_name: model
-    ports: 
+    ports:
       - "5001:5001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
     networks:
       - maintenance-net
 

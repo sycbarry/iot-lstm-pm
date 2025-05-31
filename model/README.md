@@ -1,11 +1,11 @@
-# server.py 
+# server.py
 
 
-API Contract: 
+API Contract:
 
 ```
-POST /server 
-Body: 
+POST /server
+Body:
 
 { 'reading': [1, 2, 3, ...] }
 

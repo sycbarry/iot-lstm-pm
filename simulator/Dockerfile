@@ -12,6 +12,9 @@ RUN conda env create -f environment.yml
 # Use the conda environment for the rest of the commands
 SHELL ["conda", "run", "-n", "iot-lstm-pm", "/bin/bash", "-c"]
 
+
+RUN apt-get update && apt-get install -y curl
+
 # Copy the rest of your app
 COPY . .
 
