@@ -30,8 +30,44 @@ services:
       start_period: 10s
     environment:
       USINGQUEUE: True
-      HEALTHENDPOINT: ""
+      QUEUEHOST: "rabbitmq"
     networks:
+      - maintenance-net
+
+  ui: 
+    build: 
+      context: ./ui
+      dockerfile: Dockerfile
+    container_name: ui
+    ports: 
+      - "3000:3000"
+    networks:
+      - maintenance-net
+
+
+  consumerapi:
+    build:
+      context: ./consumer-api
+      dockerfile: Dockerfile
+    container_name: consumerapi
+    ports:
+      - "5002:5002"
+    environment:
+      QUEUEHOST: "rabbitmq"
+    networks:
+      - maintenance-net
+
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"       # AMQP
+      - "15672:15672"     # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks: 
       - maintenance-net
 
 networks:

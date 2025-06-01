@@ -1,9 +1,24 @@
 # iot-lstm-pm
 
-# TODO 
-- [ ] finish docker composing stuff 
+A demo that shows how an LSTM model can be used to monitor sensor data over a period of time. Built from scratch.
 
-A demo that shows how an LSTM model can be used to monitor sensor data over a period of time.
+### Overview
+
+An LSTM (or other) models can be trained on time-series data, that fit to a "steady-state" wave, or a signal that has a healthy state.
+When a new signal is generated from the source, the model will take in the reading, attempt to re-create the signal using its own bias.
+As a result, we have to waveforms, the original and the forecasted. As the model has been trained to recognize patterns and forecast future cycles from the original "steady-state" waveform,
+performing a comparison between the input and what the model has predicted as its output, will provide us with a way to perform an anomaly analysis.
+
+If the error rates when performing the comparisons between the input signal and the model's forecasted waveforms are high, then the model
+has done a poor job at noticing seasonality, outliers, etc from the input. Thus, our error rate calculations and cross-comparisons will provide
+us with a good estimate on anomalies present in the input waveform.
+
+
+### UI Example
+
+![display](./assets/example_1.png)
+
+### System Overview
 
 ![system overview](./assets/image_1.png)
 
