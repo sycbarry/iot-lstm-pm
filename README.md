@@ -1,5 +1,8 @@
 # iot-lstm-pm
 
+# TODO 
+- [ ] finish docker composing stuff 
+
 A demo that shows how an LSTM model can be used to monitor sensor data over a period of time.
 
 ![system overview](./assets/image_1.png)
