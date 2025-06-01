@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, choice
 import json 
 from time import sleep
 import uuid
@@ -9,6 +9,7 @@ import time
 
 
 DEBUG = False
+EXPORT_CSV = False
 
 endpoint = os.getenv("ENDPOINT", "https://webhook.site/b425fbac-0ca2-4ebf-a205-209f40193be9")
 health_endpoint = os.getenv("HEALTHENDPOINT", "http://localhost:5001/health")
@@ -40,6 +41,47 @@ class Sensor:
         return noise
 
     def generate_signal(self, anomaly=False):
+        base_series = self.seasonality(
+            self.time, period=self.period, amplitude=self.amplitude
+        )
+    
+        if not anomaly:
+            noise_signal = self.noise(self.time, noise_level=self.noise_level, seed=None)
+            return base_series + noise_signal
+    
+        else:
+            # Start with base signal
+            series = base_series.copy()
+        
+            # Inject different kinds of anomalies
+            num_anomalies = randint(2, 6)
+            for _ in range(num_anomalies):
+                anomaly_type = choice(['spike', 'drop', 'drift', 'shift', 'noise_burst'])
+                idx = randint(100, len(series) - 100)
+
+                if anomaly_type == 'spike':
+                    series[idx:idx+10] += np.random.uniform(5, 15)
+
+                elif anomaly_type == 'drop':
+                    series[idx:idx+10] -= np.random.uniform(5, 15)
+
+                elif anomaly_type == 'drift':
+                    drift = np.linspace(0, np.random.uniform(3, 10), 50)
+                    series[idx:idx+50] += drift
+
+                elif anomaly_type == 'shift':
+                    shift = np.random.uniform(-5, 5)
+                    series[idx:] += shift
+
+                elif anomaly_type == 'noise_burst':
+                    burst = np.random.normal(0, 5, 30)
+                    series[idx:idx+30] += burst
+
+            # Add general noise
+            noise_signal = self.noise(self.time, noise_level=self.noise_level, seed=None)
+            return series + noise_signal
+
+    def generate_signal_2(self, anomaly=False):
         if not anomaly:
             series = self.seasonality(
                 self.time, period=self.period, amplitude=self.amplitude
@@ -47,14 +89,15 @@ class Sensor:
             # noise_signal = self.noise(self.time, noise_level=1, seed=42)
             return series
         elif anomaly == True:
-            anomaly_level = randint(1, 3)
+            anomaly_level = randint(self.amplitude - 3, self.amplitude + 5)
+            anomaly_period = randint(self.period - 500, self.period + 500)
             print(f"anomaly set / value => {anomaly_level}")
             series = self.seasonality(
                 self.time,
-                period=self.period + (anomaly_level // 2),
-                amplitude=self.amplitude,
+                period=anomaly_period,
+                amplitude=anomaly_level,
             )
-            noise_signal = self.noise(self.time, noise_level=anomaly_level, seed=42)
+            noise_signal = self.noise(self.time, noise_level=0.5, seed=42)
             return series + noise_signal
 
 
@@ -88,25 +131,23 @@ def main():
         """Generate sensor readings"""
 
         create_anomaly = randint(0, 1)
-        if DEBUG == True:
+        if DEBUG == True and EXPORT_CSV == True:
             create_anomaly = 0
         # generate a normal value
         if create_anomaly == 0:
-            sensor_reading = sensor.generate_signal(
-                anomaly=False
-            )  # if we have some sort of anomaly, set this to True
+            sensor_reading = sensor.generate_signal(anomaly=False)  # if we have some sort of anomaly, set this to True
         # otherwise create a sensor reading with a form of anomaly
         else:
-            sensor_reading = sensor.generate_signal(
-                anomaly=True
-            )  # if we have some sort of anomaly, set this to True
+            sensor_reading = sensor.generate_signal(anomaly=True)  # if we have some sort of anomaly, set this to True
+
         print(f"emitting sensor value => {sensor_reading}")
 
-        wait_for_model(health_endpoint)
-        post_request(sensor_reading)
+        if not DEBUG: 
+            wait_for_model(health_endpoint)
+            post_request(sensor_reading)
 
         """Dump the readings to a file if debug mode is on"""
-        if DEBUG == True:
+        if DEBUG == True and EXPORT_CSV == True:
             readings.append(
                 {
                     "reading_type": "normal" if create_anomaly == 0 else "anomaly",

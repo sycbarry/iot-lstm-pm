@@ -1,5 +1,13 @@
+body {
+  color: white;
+  background-color: #282c34;
+}
+
 .App {
   text-align: center;
+  color: white;
+  height: auto;
+  padding: 20px;
 }
 
 .App-logo {
@@ -35,4 +43,22 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+
+.section-meta {
+  width: auto;
+  padding: 20px; 
+  background-color: #181a20;
+  color: white;
+  margin-bottom: 10px;
+  text-align: left;
+}
+.section-graph {
+  width: auto;
+  text-align: left;
+  padding: 20px;
+  background-color: #181a20;
+  align-content: baseline;
+  min-height: 60vh;
 }

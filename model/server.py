@@ -5,6 +5,7 @@ import os
 from helpers import window, model_forecast
 import requests
 import numpy as np
+import pika
 
 app = Flask(__name__)
 PORT = 5001
@@ -12,19 +13,34 @@ PORT = 5001
 model = tf.keras.models.load_model('final.h5')  
 
 PREDICTION_ENDPOINT = os.getenv("PREDICTION_ENDPOINT", "https://webhook.site/0bc39358-0532-4bb5-912e-9d41856a6afd")
+USINGQUEUE = os.getenv("USINGQUEUE", False)
+QUEUEHOST = os.getenv("QUEUEHOST", "localhost")
 
 WINDOW_SIZE = 30 
+# WINDOW_SIZE=100
 BATCH_SIZE = 32
 SHUFFLE = 1000
+
+
+def publish_to_queue(data: list) -> None: 
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=QUEUEHOST))
+    channel = connection.channel()
+    channel.queue_declare(queue="predictions")
+    channel.basic_publish(exchange='', routing_key='predictions', body=data.__str__())
+    print("[x] sent message to predictions/ queue")
 
 
 def post_prediction(data: list) -> None: 
     if data is None: 
         print("no prediction data specified")
         return None
-    response = requests.post(PREDICTION_ENDPOINT, json=data)
-    response.raise_for_status()
-    return response.status_code
+    if USINGQUEUE: 
+        publish_to_queue(data=data)
+        return 200
+    else: 
+        response = requests.post(PREDICTION_ENDPOINT, json=data)
+        response.raise_for_status()
+        return response.status_code
 
 def calculate_prediction_anomalies(input, prediction: list) -> dict: 
     """Here we're taking the raw input, the prediction 
@@ -43,7 +59,9 @@ def calculate_prediction_anomalies(input, prediction: list) -> dict:
 
     return { 
         "anomalies": anomalies.tolist().count(True),
-        "anomaly_percentage": float(anomaly_percentage) 
+        "anomaly_percentage": float(anomaly_percentage), 
+        "predicted_waveform": prediction.tolist(), 
+        "sensor_waveform": input.tolist() 
         }
 
 
