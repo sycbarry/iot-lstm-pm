@@ -2,7 +2,11 @@
 
 A demo that shows how an LSTM model can be used to monitor sensor data over a period of time. Built from scratch.
 
-### Overview
+This is a project that simulates a sensor or some device emitting signals. Every few seconds, the signal either emits a "healty" signal, or an "un-healthy" one. There are some API's that feed data accross to each other, with one of those services being a LSTM model trained on a healty wave performing anomaly detection against each new signal. The anomaly detections eventually display on the UI dashboard every few seconds.
+
+This is a live simulation that you can run on your own laptop. 
+
+### Introduction
 
 An LSTM (or other) models can be trained on time-series data, that fit to a "steady-state" wave, or a signal that has a healthy state.
 When a new signal is generated from the source, the model will take in the reading, attempt to re-create the signal using its own bias.
@@ -34,4 +38,4 @@ Make sure you have docker installed with docker compose.
 
 You can just use mprocs on your local machine to start up the services. Just run `mprocs` from the root of this directory (make adjustments to the `mprocs.yaml` file if needed)
 
-> This was not generated with AI. Cheers.
+> This project was not generated with AI. Cheers.
