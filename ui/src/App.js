@@ -63,8 +63,10 @@ const TimeSeriesChart = ({ predicted, original }) => {
         <YAxis />
         <Tooltip />
         <Legend />
-        <Line type="monotone" dataKey="predictedsignal" stroke="#8884d8" />
-        <Line type="monotone" dataKey="sensordata" stroke="#82ca9d" />
+        {/* <Line type="monotone" dataKey="predictedsignal" stroke="#8884d8" />
+        <Line type="monotone" dataKey="sensordata" stroke="#82ca9d" /> */}
+        <Line type="monotone" dataKey="predictedsignal" stroke="green" dot={false} />
+        <Line type="monotone" dataKey="sensordata" stroke="blue" dot={false} />
       </LineChart>
     </ResponsiveContainer>
   );
